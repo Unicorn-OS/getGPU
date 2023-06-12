@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  gather_facts: true
+  vars:
+    development: False
+
+    repos:
+    - "Unicorn-OS/ADB"
+    - "Unicorn-OS/Android-Image-Kitchen.buildtool"
+
+  tasks:
+  - name: Git checkout
+    ansible.builtin.git:
+      repo: "{{'git@github.com:' if development else 'https://github.com/'}}{{item}}.git"
+      dest: "{{playbook_dir}}/repo/{{item}}"
+      # version: release-0.11 Someday use hashes!
+      update: false
+    loop: "{{repos}}"
+    when: not development

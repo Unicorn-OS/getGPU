@@ -1,0 +1,6 @@
+---
+# https://www.baeldung.com/linux/ssh-copy-id-automate
+# Run on localhost:
+
+- name: Copy ssh-key to node
+  shell: sshpass –p {{my_secret_password}} ssh-copy-id {{user}}@{{host}}

@@ -1,0 +1,21 @@
+---
+- hosts: local #, fedora, ubuntu
+  vars:
+    somevar: "value"
+    source: "package"
+
+  tasks:
+
+  - name: Get Gpu
+    get_gpu:
+    register: gpu
+
+
+  - debug:
+      msg: "Hello {{gpu}}"
+
+  - debug:
+      msg: |
+        Intel GPU
+        discrete: {{ gpu.hw.intel.discrete }}
+        integrated: {{ gpu.hw.intel.integrated }}
