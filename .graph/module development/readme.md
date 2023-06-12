@@ -1,4 +1,4 @@
-# Doc:
+# Future:
 - https://docs.ansible.com/ansible/devel/dev_guide/developing_modules_general.html#creating-an-info-or-a-facts-module
 
 
@@ -11,4 +11,3 @@ https://serverfault.com/questions/868770/ansible-pass-dictionary-from-python-scr
 >2. Execute custom module and store returned values.
 >3. Use those values as a dictionary.
 
-sch: https://www.google.com/search?q=ansible+pass+dictionary+from+python
