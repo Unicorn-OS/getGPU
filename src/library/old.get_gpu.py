@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 from ansible.module_utils.basic import *
 import json
 import subprocess
@@ -14,35 +14,34 @@ USER = "me"
 # https://github.com/ansible/ansible/issues/72220#issuecomment-1021551392
 # https://serverfault.com/questions/868770/ansible-pass-dictionary-from-python-script
 
-def get_pci_device():
+def get_intel():
     data = get_lshw()
-    device = data["children"][0]["children"]
+    device = data["children"][0]["children"][2]["children"][1]["product"]
+    
+    integrated = "HD Graphics" in device
+    discrete = False
+    
+    return (discrete, integrated)
 
-    num = 0
-    for d in device:
-        if d["id"] == "pci":
-            return num
-            # break
-        num += 1
-
-def get_pci_gpu():
-    # Find GPU on a PCI bus
+def get_virtio():
     data = get_lshw()
-    num = get_pci_device()
-    gpu = data["children"][0]["children"][num]["children"][0]["product"]    
-    return gpu
+    device = data["children"][0]["children"][2]["children"][1]["product"]
+    
+    integrated = "Virtio GPU" in device
+    discrete = False
+    
+    return (discrete, integrated)
 
 
 def find_gpu():
     
     # Real GPUs
     amd_discrete, amd_integrated = False, False
-    intel_discrete, intel_integrated = False, get_pci_gpu() == "HD Graphics"
+    intel_discrete, intel_integrated = get_intel()
     nvidia_discrete, nvidia_integrated = False, False
 
     # Virtual GPU
-    virtio_gpu = get_pci_gpu() == "Virtio GPU"
-
+    virtio_discrete, virtio_integrated = get_intel()
     # For APUs like Nvidia Jetson, & Grace Hopper
 
     gpus = {
@@ -59,7 +58,8 @@ def find_gpu():
             "integrated": nvidia_integrated,
         },
         "virtio": {
-            "gpu": virtio_gpu,
+            "discrete": virtio_discrete,
+            "integrated": virtio_integrated,
         },
     }
 
@@ -88,16 +88,12 @@ def _test():
         _dbg_write()
 
 def main():
-    gpu = find_gpu()
     module = AnsibleModule(argument_spec={})
+    gpu = find_gpu()
     module.exit_json(hw=gpu)
 
-    # bac.Works
+    # Works
     # module.exit_json(meta=gpu)
-
-    # Debug
-    # print(get_gpu())
-    # print(gpu)
 
 if __name__ == '__main__':  
     main()
