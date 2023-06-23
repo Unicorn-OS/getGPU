@@ -1,15 +1,9 @@
 ---
-- hosts: local #, fedora, ubuntu
-  vars:
-    somevar: "value"
-    source: "package"
-
+- hosts: localhost #, fedora, ubuntu
   tasks:
-
   - name: Get Gpu
     get_gpu:
     register: gpu
-
 
   - debug:
       msg: "Hello {{gpu}}"
