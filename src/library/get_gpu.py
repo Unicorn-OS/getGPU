@@ -3,6 +3,8 @@ from ansible.module_utils.basic import *
 import json
 import subprocess
 
+USER = "me"
+
 # Todo: Make this work on ARM, RISCV, and x86!
 
 # Gets GPUs from `lshw -json`
@@ -21,12 +23,25 @@ def get_intel():
     
     return (discrete, integrated)
 
+def get_virtio():
+    data = get_lshw()
+    device = data["children"][0]["children"][2]["children"][1]["product"]
+    
+    integrated = "Virtio GPU" in device
+    discrete = False
+    
+    return (discrete, integrated)
+
 
 def find_gpu():
     
+    # Real GPUs
     amd_discrete, amd_integrated = False, False
     intel_discrete, intel_integrated = get_intel()
     nvidia_discrete, nvidia_integrated = False, False
+
+    # Virtual GPU
+    virtio_discrete, virtio_integrated = get_intel()
     # For APUs like Nvidia Jetson, & Grace Hopper
 
     gpus = {
@@ -41,6 +56,10 @@ def find_gpu():
         "nvidia": {
             "discrete": nvidia_discrete,
             "integrated": nvidia_integrated,
+        },
+        "virtio": {
+            "discrete": virtio_discrete,
+            "integrated": virtio_integrated,
         },
     }
 
@@ -60,7 +79,7 @@ def _test():
         # Write lshw to ~/Desktop
         name = "lshw"
         byte = subprocess.check_output(['lshw', '-json'])
-        file = f"/home/me/Desktop/{name}.json"
+        file = f"/home/{USER}/Desktop/{name}.json"
         f = open(file, "wb")
         f.write(byte)
         f.close()
